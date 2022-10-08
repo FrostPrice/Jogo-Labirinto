@@ -2,7 +2,15 @@
 // - Faça um programa que lê um arquivo com indicações de espaço livre(0), barreira(1), personagem(2) - OK
 // - O jogo deve ter uma função que permite o movimento do personagem pelas posições livres sem deixar rastro - OK
 // - Modifiquem o método de movimentação para o jogador ficar fixo numa posição da tela e o mapa se mover para executar o movimento
-// - Criem um campo de visão para indicar quanto do mapa vai aparecer. se o valor for 3, deve aparecer somente 3
+// - Criem um campo de visão para indicar quanto do mapa vai aparecer. se o valor for 3, deve aparecer somente 3 - OK
+// - Façam um menu cin as Opções:
+//  1) Novo Jogo
+//  2) Continuar
+//  3) Salvar
+// - Façam o mapa do jogador 2 ser exibido como uma matriz transposta
+// Colocar 2 jogadores
+// Pontuação
+// Criar um pega-pega com os 2 jogadores
 #pragma endregion TODOS
 
 using namespace std;
@@ -16,10 +24,8 @@ using namespace std;
 struct Player
 {
     int x, y, view;
-    int *view_adjacent_values;
 
-    void
-    coord(int col, int lin)
+    void coord(int col, int lin)
     {
         x = col;
         y = lin;
@@ -28,17 +34,6 @@ struct Player
     void set_view(int view_value)
     {
         view = view_value;
-    }
-
-    void create_view_adjacent_values()
-    {
-        int temp = view;
-        view_adjacent_values = new int[view * 2 + 1];
-        for (int i = 0; i < view * 2 + 1; i++)
-        {
-            view_adjacent_values[i] = temp;
-            temp--;
-        }
     }
 };
 
@@ -71,7 +66,7 @@ struct File
             for (int j = 0; j < y; j++)
             {
                 map >> map_char;
-                matrix[i][j] = map_char - 48; // Porque menos 48?
+                matrix[i][j] = map_char - 48;
             }
         }
     }
@@ -81,36 +76,13 @@ void show_map(File file, Player player)
 {
     move(0, 0); // Move the cursor to the begining of the Terminal
 
-    // for (int i = 0; i < file.x; i++)
-    // {
-    //     for (int j = 0; j < file.y; j++)
-    //     {
-    //         switch (file.matrix[i][j])
-    //         {
-    //         case 0:
-    //             mvprintw(i, j, " ");
-    //             break;
-    //         case 1:
-    //             mvprintw(i, j, "1");
-    //             break;
-    //         case 2:
-    //             mvprintw(i, j, "2");
-    //             break;
-    //         }
-    //     }
-    //     cout << endl;
-    // }
-
-    // cout << endl;
-
-    // TODO: Fix this fucking thing
-    for (int i = player.view * 2 + 1; i >= 0; i--)
+    for (int i = player.x - player.view; i < player.x + player.view; i++)
     {
-        for (int j = player.view * 2 + 1; j >= 0; j--)
+        for (int j = player.y - player.view; j < player.y + player.view; j++)
         {
-            if (player.x + player.view_adjacent_values[i] >= 0 && player.y + player.view_adjacent_values[j] >= 0 && player.x + player.view_adjacent_values[i] < player.view * 2 + 1 && player.y + player.view_adjacent_values[j] < player.view * 2 + 1)
+            if (i >= 0 && j >= 0 && i < file.x && j < file.y)
             {
-                switch (file.matrix[player.x + player.view_adjacent_values[i]][player.y + player.view_adjacent_values[j]])
+                switch (file.matrix[i][j])
                 {
                 case 0:
                     mvprintw(i, j, " ");
@@ -183,7 +155,6 @@ int main()
     Player player_1;
     player_1.coord(3, 4);
     player_1.set_view(3);
-    player_1.create_view_adjacent_values();
 
     File map;
     map.name = "labirinto.txt";
