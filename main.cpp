@@ -1,7 +1,7 @@
 #pragma region TODOS
 // - Faça um programa que lê um arquivo com indicações de espaço livre(0), barreira(1), personagem(2) - OK
 // - O jogo deve ter uma função que permite o movimento do personagem pelas posições livres sem deixar rastro - OK
-// - Modifiquem o método de movimentação para o jogador ficar fixo numa posição da tela e o mapa se mover para executar o movimento
+// - Modifiquem o método de movimentação para o jogador ficar fixo numa posição da tela e o mapa se mover para executar o movimento - OK
 // - Criem um campo de visão para indicar quanto do mapa vai aparecer. se o valor for 3, deve aparecer somente 3 - OK
 // Faça um menu com as opções:
 //      - Novo jogo
@@ -77,10 +77,10 @@ struct File
 
 void show_map(File file, Player player)
 {
-    move(0, 0); // Move the cursor to the begining of the Terminal
-
+    int win_x = 0; // Used to make the player view fixed on the side of the screen
     for (int i = player.x - player.view; i < player.x + player.view; i++)
     {
+        int win_y = 0; // Used to make the player view fixed on the side of the screen
         for (int j = player.y - player.view; j < player.y + player.view; j++)
         {
             if (i >= 0 && j >= 0 && i < file.x && j < file.y)
@@ -88,18 +88,20 @@ void show_map(File file, Player player)
                 switch (file.matrix[i][j])
                 {
                 case 0:
-                    mvprintw(i, j, " ");
+                    mvaddch(win_x, win_y, ' ');
                     break;
                 case 1:
-                    mvprintw(i, j, "1");
+                    mvaddch(win_x, win_y, char(219));
                     break;
                 case 2:
-                    mvprintw(i, j, "2");
+                    mvaddch(win_x, win_y, char(1));
                     break;
                 }
             }
+            win_y++;
         }
         cout << endl;
+        win_x++;
     }
     cout << endl;
 };
