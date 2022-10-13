@@ -41,11 +41,11 @@ public:
     int get_x()
     {
         return this->x;
-    };
+    }
     int get_y()
     {
         return this->y;
-    };
+    }
     int **get_matrix()
     {
         return this->matrix;

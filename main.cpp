@@ -1,3 +1,5 @@
+/* Mateus Barbosa, Matheus De Oliveira Rocha, Eduardo Augusto Formigheri Moretto */
+
 #pragma region TODOS
 /*
 --------------------------------------------------------------------------------------------
@@ -22,18 +24,18 @@
 
 using namespace std;
 
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <curses.h>
-#include <ncurses.h>
+#include <locale.h>
+#include <time.h>
 
 #include "./Headers/System.h"
 
 int main()
 {
+    setlocale(LC_ALL, "Portuguese");
+    srand(time(NULL));
+
     System system;
-    system.start_game();
+    system.main_menu();
 
     return 0;
 }
