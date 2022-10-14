@@ -21,12 +21,101 @@ public:
     // Methods
     void main_menu()
     {
-        clear();
+        system("cls||clear");
         cout << "+--------------------------------------+\n";
         cout << "|            Welcome to the            |\n";
         cout << "|                                      |\n";
         cout << "|     Fehl Sky Maze - Lost in the      |\n";
         cout << "|         Fractured But Whole          |\n";
+        cout << "|                                      |\n";
+        cout << "+--------------------------------------+\n";
+        cout << endl;
+        cout << "+--------------------------------------+\n";
+        cout << "| - Press 1 to Start a New Game        |\n";
+        cout << "| - Press 2 to Continue Saved Game     |\n";
+        cout << "| - Press 3 to Quit                    |\n";
+        cout << "+--------------------------------------+\n";
+        cout << endl;
+
+        int input;
+        do
+        {
+            cin >> input;
+            switch (input)
+            {
+            case 1:
+                start_new_game("maze.txt", 10, 10);
+                break;
+            case 2:
+                load_game("saved_game.txt", 10, 10);
+                break;
+            case 3:
+                is_playing = false;
+                cout << "Exiting game....";
+                break;
+            default:
+                cout << "Please, add a valid selection" << endl;
+                break;
+            }
+        } while (input <= 0 || input >= 5);
+    }
+
+    void start_new_game(string name, int size_x, int size_y)
+    {
+        File map;
+        map.set_name(name);
+        map.set_size(size_x, size_y);
+        map.load_file();
+        map.define_players_coords(2);
+
+        Player player_1;
+        player_1.set_name("Player 1");
+        player_1.set_keyboard(119, 115, 97, 100); // WSAD -> In this order
+        player_1.set_coord(map.get_players_coords()[0]);
+        player_1.set_view(3);
+
+        Player player_2;
+        player_2.set_name("Player 2");
+        player_2.set_keyboard(KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT);
+        player_2.set_coord(map.get_players_coords()[1]);
+        player_2.set_view(3);
+
+        is_playing = true;
+
+        game(map, player_1, player_2);
+    }
+
+    void load_game(string name, int size_x, int size_y)
+    {
+        File map;
+        map.set_name(name);
+        map.set_size(size_x, size_y);
+        map.load_file();
+        map.define_players_coords(2);
+
+        Player player_1;
+        player_1.set_name("Player 1");
+        player_1.set_keyboard(119, 115, 97, 100); // WSAD -> In this order
+        player_1.set_coord(map.get_players_coords()[0]);
+        player_1.set_view(3);
+
+        Player player_2;
+        player_2.set_name("Player 2");
+        player_2.set_keyboard(KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT);
+        player_2.set_coord(map.get_players_coords()[1]);
+        player_2.set_view(3);
+
+        is_playing = true;
+
+        game(map, player_1, player_2);
+    };
+
+    void pause_game(File &map)
+    {
+        system("cls||clear"); // Executes cls or clear commands
+        cout << "+--------------------------------------+\n";
+        cout << "|                                      |\n";
+        cout << "|             Game Paused!             |\n";
         cout << "|                                      |\n";
         cout << "+--------------------------------------+\n";
         cout << endl;
@@ -45,15 +134,14 @@ public:
             switch (input)
             {
             case 1:
-                start_new_game("labirinto.txt", 10, 10);
+                start_new_game("maze.txt", 10, 10);
                 break;
             case 2:
-                // TODO
-                // load_game();
+                load_game("saved_game.txt", 10, 10);
                 break;
             case 3:
-                // TODO
-                // save_game();
+                map.save_file();
+                pause_game(map);
                 break;
             case 4:
                 is_playing = false;
@@ -66,22 +154,7 @@ public:
         } while (input <= 0 || input >= 5);
     }
 
-    void start_new_game(string name, int size_x, int size_y)
-    {
-        Player player_1;
-        player_1.set_name("Player 1");
-        player_1.set_coord(3, 4);
-        player_1.set_view(3);
-
-        File map;
-        map.set_name(name);
-        map.set_size(size_x, size_y);
-        map.load_file();
-
-        game(map, player_1);
-    }
-
-    void game(File map, Player player_1)
+    void game(File map, Player player_1, Player player_2)
     {
         initscr();            // Start Curses
         curs_set(0);          // Make the cursor invisible
@@ -91,17 +164,24 @@ public:
         while (is_playing)
         {
             clear();
-            show_map(map, player_1);
-            show_map(map, player_1, 20);
-            move_player(player_1, map);
+            show_map(map, player_1, 1);
+            show_map(map, player_2, 20);
+            // TODO: See if this is the best way to handle both players inputs
+            player_1.move(is_playing, map);
+            if (!is_playing)
+                break;
+            player_2.move(is_playing, map);
+
+            // Add win condition here (Stops the game)
 
             refresh();
         }
-
         endwin(); // End Curses
+
+        pause_game(map);
     }
 
-    void show_map(File file, Player player, int win_x = 0, int win_y = 2)
+    void show_map(File file, Player &player, int win_x = 0, int win_y = 2)
     {
         int file_x = file.get_x();
         int file_y = file.get_y();
@@ -110,7 +190,7 @@ public:
         int player_y = player.get_y();
         int player_view = player.get_view();
 
-        mvprintw(0, win_x + 1, player.get_name().c_str()); // Uses c_str to convert string to char* and mvprint to show in the terminal a sequence of char
+        mvprintw(0, win_x, player.get_name().c_str()); // Uses c_str to convert string to char* and mvprint to show in the terminal a sequence of char
         for (int i = player_x - player_view; i < player_x + player_view; i++)
         {
             int temp_win_x = win_x;
@@ -137,95 +217,6 @@ public:
             win_y++; // Used to make the player view fixed on the side of the screen
         }
         cout << endl;
-    }
-
-    void move_player(Player &player, File &map)
-    {
-        int map_x = map.get_x();
-        int map_y = map.get_y();
-        int **map_matrix = map.get_matrix();
-        int player_x = player.get_x();
-        int player_y = player.get_y();
-
-        char input = getch();
-        switch (input)
-        {
-        case 'w':
-            if (map_matrix[player_x - 1][player_y] == 0)
-            {
-                map_matrix[player_x][player_y] = 0;
-                map_matrix[player_x - 1][player_y] = 2;
-                player.set_x(player_x - 1);
-            }
-            break;
-        case 's':
-            if (map_matrix[player_x + 1][player_y] == 0)
-            {
-                map_matrix[player_x][player_y] = 0;
-                map_matrix[player_x + 1][player_y] = 2;
-                player.set_x(player_x + 1);
-            }
-            break;
-        case 'a':
-            if (map_matrix[player_x][player_y - 1] == 0)
-            {
-                map_matrix[player_x][player_y] = 0;
-                map_matrix[player_x][player_y - 1] = 2;
-                player.set_y(player_y - 1);
-            }
-            break;
-        case 'd':
-            if (map_matrix[player_x][player_y + 1] == 0)
-            {
-                map_matrix[player_x][player_y] = 0;
-                map_matrix[player_x][player_y + 1] = 2;
-                player.set_y(player_y + 1);
-            }
-            break;
-        case 'p':
-            // TODO: Send to the main_menu
-            break;
-        }
-
-        // int input = getch();
-        // switch (input)
-        // {
-        // case KEY_UP:
-        //     if (map_matrix[player_x - 1][player_y] == 0)
-        //     {
-        //         map_matrix[player_x][player_y] = 0;
-        //         map_matrix[player_x - 1][player_y] = 2;
-        //         player.set_x(player_x - 1);
-        //     }
-        //     break;
-        // case KEY_DOWN:
-        //     if (map_matrix[player_x + 1][player_y] == 0)
-        //     {
-        //         map_matrix[player_x][player_y] = 0;
-        //         map_matrix[player_x + 1][player_y] = 2;
-        //         player.set_x(player_x + 1);
-        //     }
-        //     break;
-        // case KEY_LEFT:
-        //     if (map_matrix[player_x][player_y - 1] == 0)
-        //     {
-        //         map_matrix[player_x][player_y] = 0;
-        //         map_matrix[player_x][player_y - 1] = 2;
-        //         player.set_y(player_y - 1);
-        //     }
-        //     break;
-        // case KEY_RIGHT:
-        //     if (map_matrix[player_x][player_y + 1] == 0)
-        //     {
-        //         map_matrix[player_x][player_y] = 0;
-        //         map_matrix[player_x][player_y + 1] = 2;
-        //         player.set_y(player_y + 1);
-        //     }
-        //     break;
-        // case 'p':
-        //     // TODO: Send to the main_menu
-        //     break;
-        // }
     }
 };
 
