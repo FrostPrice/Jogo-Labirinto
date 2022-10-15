@@ -35,7 +35,7 @@ public:
             for (int j = 0; j < y; j++)
             {
                 map >> map_char;
-                matrix[i][j] = map_char - 48; // The values for char start at 48
+                matrix[i][j] = map_char - 48; // Os valores para char começam em 48
             }
         }
     }
@@ -62,7 +62,7 @@ public:
         players_coords = new int *[num_players];
         for (int i = 0; i < 2; i++)
         {
-            players_coords[i] = new int[2]; // For x and y coords
+            players_coords[i] = new int[2]; // Para coordenadas x e y
         }
 
         int temp_i = 0;

@@ -3,6 +3,10 @@
 
 #include "File.h"
 
+using namespace std;
+
+#include <iostream>
+
 class Player
 {
 private:
@@ -18,11 +22,13 @@ public:
         int map_y = map.get_y();
         int **map_matrix = map.get_matrix();
 
+        // nodelay(stdscr, TRUE);
         int input = getch();
         if (input == keyboard[0])
         {
             if (map_matrix[x - 1][y] == 0)
             {
+                cout << "AAAAAAAAA";
                 map_matrix[x][y] = 0;
                 map_matrix[x - 1][y] = 2;
                 x += -1;
@@ -59,6 +65,7 @@ public:
         {
             is_playing = false;
         }
+        // nodelay(stdscr, FALSE);
     }
 
     // Getters

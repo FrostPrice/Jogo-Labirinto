@@ -28,6 +28,7 @@
     "utility": "cpp",
     "variant": "cpp",
     "*.inc": "cpp",
-    "iosfwd": "cpp"
+    "iosfwd": "cpp",
+    "initializer_list": "cpp"
   }
 }

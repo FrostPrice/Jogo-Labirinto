@@ -11,21 +11,23 @@
     - Novo jogo - OK
     - Continuar - OK
     - Salvar - OK
+// - Faça o mapa do jogador 2 ser exibido de forma transposta em relação ao do jogador 1 - OK
+// - Faça o jogador 1 vencer quando o jogador 2 estiver perto (dentro do campo de visão do jogador 1) - OK
 --------------------------------------------------------------------------------------------
-- Faça o mapa do jogador 2 ser exibido de forma transposta em relação ao do jogador 1
-- Faça o jogador 1 vencer quando o jogador 2 estiver perto (dentro do campo de visão do jogador 1)
 - Conte o tempo que levou para isso acontecer (tempo de fim - tempo de inicio do jogo)
 - Inclua um ranking no menu com os melhores tempos ordenados
 - Faça portais que permitem o jogador aparecer em uma posição aleatória livre no mapa
 - Faça itens que quando pegos reduzem o campo de visão do adversário por 5 segundos.
 - Faça um item que quando pego bloqueia o movimento do adversário por 5 segundos.
- */
+*/
 #pragma endregion TODOS
 
 using namespace std;
 
 #include <locale.h>
 #include <time.h>
+#include <curses.h>
+#include <ncurses.h>
 
 #include "./Headers/System.h"
 
@@ -34,8 +36,16 @@ int main()
     setlocale(LC_ALL, "Portuguese");
     srand(time(NULL));
 
+    initscr();            // Start Curses
+    curs_set(0);          // Make the cursor invisible
+    keypad(stdscr, TRUE); // Habilitar o uso da tecla de seta
+    noecho();             // Não mostrar o que o usuário digita
+    cbreak();             // Desabilitar buffer de linha
+
     System system;
     system.main_menu();
+
+    endwin(); // End Curses
 
     return 0;
 }
