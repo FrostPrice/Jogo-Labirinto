@@ -6,6 +6,7 @@ using namespace std;
 #include <ctime>
 #include <curses.h>
 #include <ncurses.h>
+#include <bits/stdc++.h>
 
 #include "Player.h"
 #include "File.h"
@@ -30,11 +31,12 @@ public:
         printw("|                                      |\n");
         printw("+--------------------------------------+\n");
         printw("\n");
-        printw("+---------------------------------------------+\n");
-        printw("| - Pressione 1 para Comecar um Novo Jogo     |\n");
-        printw("| - Pressione 2 para continuar o jogo salvo   |\n");
-        printw("| - Pressione 3 para Sair                     |\n");
-        printw("+---------------------------------------------+\n");
+        printw("+-----------------------------------------------------+\n");
+        printw("| - Pressione 1 para Comecar um Novo Jogo             |\n");
+        printw("| - Pressione 2 para continuar o jogo salvo           |\n");
+        printw("| - Pressione 3 para Visualizar o Quadro de Pontuação |\n");
+        printw("| - Pressione 4 para Sair                             |\n");
+        printw("+-----------------------------------------------------+\n");
         printw("\n");
         refresh();
 
@@ -51,6 +53,9 @@ public:
                 load_game("saved_game.txt", 20, 24);
                 break;
             case 3:
+                show_scoreboard();
+                break;
+            case 4:
                 is_playing = false;
                 printw("Saindo do jogo....");
                 break;
@@ -120,12 +125,12 @@ public:
         printw("|                                          |\n");
         printw("+------------------------------------------+\n");
         printw("\n");
-        printw("+------------------------------------------+\n");
-        printw("| - Press 1 para Iniciar um novo jogo      |\n");
-        printw("| - Press 2 para Continuar o jogo salvo    |\n");
-        printw("| - Press 3 para Salvar                    |\n");
-        printw("| - Press 4 para Sair                      |\n");
-        printw("+------------------------------------------+\n");
+        printw("+----------------------------------------------+\n");
+        printw("| - Pressione 1 para Iniciar um novo jogo      |\n");
+        printw("| - Pressione 2 para Continuar o jogo salvo    |\n");
+        printw("| - Pressione 3 para Salvar                    |\n");
+        printw("| - Pressione 4 para Sair                      |\n");
+        printw("+----------------------------------------------+\n");
         printw("\n");
         refresh();
 
@@ -136,10 +141,10 @@ public:
             switch (input)
             {
             case 1:
-                start_new_game("maze.txt", 10, 10);
+                start_new_game("maze.txt", 20, 24);
                 break;
             case 2:
-                load_game("saved_game.txt", 10, 10);
+                load_game("saved_game.txt", 20, 24);
                 break;
             case 3:
                 map.save_file();
@@ -160,16 +165,17 @@ public:
     {
         clock_t start;
         start = clock();
+        float current_time = 0.0;
 
         while (is_playing)
         {
             erase();
-            time(start);
+            time(start, current_time);
             show_map(map, player_1, 1);
             show_map_transposed(map, player_2, 20);
 
             // napms(5000);
-            win_game(player_1.get_view(), player_1, player_2);
+            win_game(current_time, player_1.get_view(), player_1, player_2);
 
             // nodelay(stdscr, TRUE);
             // TODO: See if this is the best way to handle both players inputs using kbhit()
@@ -183,17 +189,20 @@ public:
         pause_game(map);
     }
 
-    void time(clock_t start)
+    void time(clock_t start, float &current_time)
     {
         clock_t sum = 33.33;
+        current_time = (clock() - start + sum) / (double)CLOCKS_PER_SEC;
         move(10, 30);
-        printw("Clock: %f", (clock() - start + sum) / (double)CLOCKS_PER_SEC);
+        printw("Clock: %f", current_time);
     }
 
-    void win_game(int view, Player player_1, Player player_2)
+    void win_game(int time, int view, Player player_1, Player player_2)
     {
+        // TODO: Improve this win
         if (abs(player_1.get_x() - player_2.get_x()) < view && abs(player_1.get_y() - player_2.get_y()) < view) // Condição de Vitória
         {
+            save_scoreboard(time);
             is_playing = false;
             clear();
             printw("+-----------------------------------------+\n");
@@ -202,11 +211,12 @@ public:
             printw("|                                         |\n");
             printw("+-----------------------------------------+\n");
             printw("\n");
-            printw("+-----------------------------------------+\n");
-            printw("| - Press 1 para iniciar um novo jogo     |\n");
-            printw("| - Press 2 para continuar o jogo salvo   |\n");
-            printw("| - Press 3 para sair                     |\n");
-            printw("+-----------------------------------------+\n");
+            printw("+-----------------------------------------------------+\n");
+            printw("| - Pressione 1 para iniciar um novo jogo             |\n");
+            printw("| - Pressione 2 para continuar o jogo salvo           |\n");
+            printw("| - Pressione 3 para Visualizar o Quadro de Pontuação |\n");
+            printw("| - Pressione 4 para sair                             |\n");
+            printw("+-----------------------------------------------------+\n");
             printw("\n");
             refresh();
 
@@ -223,6 +233,9 @@ public:
                     load_game("saved_game.txt", 10, 10);
                     break;
                 case 3:
+                    show_scoreboard();
+                    break;
+                case 4:
                     is_playing = false;
                     printw("Saindo do jogo....");
                     break;
@@ -230,7 +243,7 @@ public:
                     printw("Por favor, adicione uma seleção válida\n");
                     break;
                 }
-            } while (input <= 0 || input >= 4);
+            } while (input <= 0 || input >= 5);
         }
     };
 
@@ -309,6 +322,92 @@ public:
             win_y++; // Usado para tornar a visualização do player fixa na lateral da tela
         }
         printw("\n");
+    }
+
+    void save_scoreboard(float current_time)
+    {
+        float *scores = new float[6];
+
+        ifstream file;
+        file.open("scoreboard.txt");
+        string line;
+
+        int counter = 0;
+        while (getline(file, line))
+        {
+            if (counter == 4)
+                break;
+
+            scores[counter] = stof(line); // Função para converter String para Float
+            counter++;
+        }
+        scores[5] = current_time;
+
+        std::sort(scores, scores + 6);
+
+        ofstream file_to_save;
+        file_to_save.open("scoreboard.txt");
+        file_to_save.clear();
+
+        float score;
+        for (int i = 0; i < 5; i++)
+        {
+            score = scores[i];
+            file_to_save << score << endl;
+        }
+
+        file_to_save.close();
+        delete[] scores;
+    };
+
+    void show_scoreboard()
+    {
+        clear();
+        printw("+-------------------------------------+\n");
+        printw("|                                     |\n");
+        printw("|         Quadro de Pontuação         |\n");
+        printw("|                                     |\n");
+        printw("|         TOP 5 - Best Times          |\n");
+        printw("|                                     |\n");
+        printw("+-------------------------------------+\n");
+        printw("\n");
+        printw("+-------------------------------------+\n");
+        printw("| - Pressione 1 para voltar           |\n");
+        printw("+-------------------------------------+\n");
+        printw("\n");
+
+        ifstream file;
+        file.open("scoreboard.txt");
+        string line;
+
+        int counter = 0;
+        while (getline(file, line))
+        {
+            if (counter == 5)
+                break;
+
+            printw(line.c_str());
+            printw("\n");
+            counter++;
+        }
+        refresh();
+
+        file.close();
+
+        int input;
+        do
+        {
+            input = getch() - 48;
+            switch (input)
+            {
+            case 1:
+                main_menu();
+                break;
+            default:
+                printw("Por favor, adicione uma seleção válida\n");
+                break;
+            }
+        } while (input <= 0 || input >= 3);
     }
 };
 

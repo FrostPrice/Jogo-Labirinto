@@ -22,7 +22,7 @@ public:
         int map_y = map.get_y();
         int **map_matrix = map.get_matrix();
 
-        // nodelay(stdscr, TRUE);
+        nodelay(stdscr, TRUE);
         int input = getch();
         if (input == keyboard[0])
         {
@@ -65,7 +65,7 @@ public:
         {
             is_playing = false;
         }
-        // nodelay(stdscr, FALSE);
+        nodelay(stdscr, FALSE);
     }
 
     // Getters
