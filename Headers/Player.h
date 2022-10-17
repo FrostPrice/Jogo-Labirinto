@@ -1,11 +1,11 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "File.h"
-
 using namespace std;
 
 #include <iostream>
+
+#include "Map.h"
 
 class Player
 {
@@ -15,20 +15,26 @@ private:
     int keyboard[4];
 
 public:
+    Player()
+    {
+        name = "Player X";
+        x = 0;
+        y = 0;
+        view = 0;
+        keyboard[4] = {0};
+    };
+
     // Methods
-    void move(bool &is_playing, File &map)
+    void move(int input, bool &is_playing, bool &is_paused, Map &map)
     {
         int map_x = map.get_x();
         int map_y = map.get_y();
         int **map_matrix = map.get_matrix();
 
-        nodelay(stdscr, TRUE);
-        int input = getch();
         if (input == keyboard[0])
         {
             if (map_matrix[x - 1][y] == 0)
             {
-                cout << "AAAAAAAAA";
                 map_matrix[x][y] = 0;
                 map_matrix[x - 1][y] = 2;
                 x += -1;
@@ -64,8 +70,8 @@ public:
         else if (input == 112) // 112 == p
         {
             is_playing = false;
+            is_paused = true;
         }
-        nodelay(stdscr, FALSE);
     }
 
     // Getters
@@ -104,11 +110,11 @@ public:
     }
     void set_x(int x)
     {
-        this->x = x;
+        this->x += x;
     }
     void set_y(int y)
     {
-        this->y = y;
+        this->y += y;
     }
     void set_view(int view)
     {

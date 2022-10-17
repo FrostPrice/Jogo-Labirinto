@@ -35,17 +35,17 @@ using namespace std;
 
 int main()
 {
-    setlocale(LC_ALL, "Portuguese");
+    setlocale(LC_ALL, "Portuguese"); // Habilita caracteres especiais
     srand(time(NULL));
 
     initscr();            // Start Curses
     curs_set(0);          // Make the cursor invisible
-    keypad(stdscr, TRUE); // Habilitar o uso da tecla de seta
-    noecho();             // Não mostrar o que o usuário digita
     cbreak();             // Desabilitar buffer de linha
+    noecho();             // Não mostrar o que o usuário digita
+    keypad(stdscr, TRUE); // Habilitar o uso da tecla de seta
 
     System system;
-    system.main_menu();
+    system.__init__();
 
     endwin(); // End Curses
 

@@ -7,6 +7,8 @@ A local multiplayer 2D game of Hide & Seek, where player 1 needs to find player 
 - Player 1 -> WASD
 - Player 2 -> Arrows (Up, Down, Left, Right)
 
+- Press P at any moment during the game to pause it.
+
 ### Compile the Game:
 
 ```

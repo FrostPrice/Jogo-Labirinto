@@ -1,5 +1,5 @@
-#ifndef FILE_H
-#define FILE_H
+#ifndef MAP_H
+#define MAP_H
 
 using namespace std;
 
@@ -8,7 +8,7 @@ using namespace std;
 
 #include "Player.h"
 
-class File
+class Map
 {
 private:
     string name;
@@ -109,4 +109,4 @@ public:
     }
 };
 
-#endif // FILE_H
+#endif // MAP_H
