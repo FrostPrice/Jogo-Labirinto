@@ -106,7 +106,7 @@ public:
                 printw("Por favor, adicione uma seleção válida\n");
                 break;
             }
-        } while (input <= 0 || input >= 4);
+        } while (input <= 0 || input >= 5);
     }
 
     void set_game(string name, int size_x, int size_y)
@@ -246,7 +246,7 @@ public:
                     scoreboard.show_scoreboard();
                     break;
                 case 3:
-                    printw("Saindo do jogo....");
+                    printw("Saindo do jogo....\nAperte um botão novamente para continuar");
                     break;
                 default:
                     printw("Por favor, adicione uma seleção válida\n");
