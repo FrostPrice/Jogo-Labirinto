@@ -55,14 +55,14 @@ public:
         clear();
         printw("+-------------------------------------+\n");
         printw("|                                     |\n");
-        printw("|         Quadro de Pontuação         |\n");
+        printw("|             Scoreboard              |\n");
         printw("|                                     |\n");
-        printw("|         TOP 5 - Best Times          |\n");
+        printw("|          Top 5 best times           |\n");
         printw("|                                     |\n");
         printw("+-------------------------------------+\n");
         printw("\n");
         printw("+-------------------------------------+\n");
-        printw("| - Pressione 1 para voltar           |\n");
+        printw("| - Press 1 to go back                |\n");
         printw("+-------------------------------------+\n");
         printw("\n");
 

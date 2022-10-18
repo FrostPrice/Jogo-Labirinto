@@ -57,7 +57,7 @@ public:
         }
     }
 
-    void define_players_coords(int num_players)
+    void define_players_initial_coords(int num_players)
     {
         players_coords = new int *[num_players];
         for (int i = 0; i < 2; i++)

@@ -11,16 +11,19 @@ class Player
 {
 private:
     string name;
-    int x, y, view;
+    bool can_move;
+    int x, y, view, last_position_value;
     int keyboard[4];
 
 public:
     Player()
     {
         name = "Player X";
+        can_move = true;
         x = 0;
         y = 0;
         view = 0;
+        last_position_value = 0;
         keyboard[4] = {0};
     };
 
@@ -31,46 +34,57 @@ public:
         int map_y = map.get_y();
         int **map_matrix = map.get_matrix();
 
-        if (input == keyboard[0])
+        if (can_move)
         {
-            if (map_matrix[x - 1][y] == 0)
+            if (input == keyboard[0])
             {
-                map_matrix[x][y] = 0;
-                map_matrix[x - 1][y] = 2;
-                x += -1;
+                if (map_matrix[x - 1][y] == 0 || map_matrix[x - 1][y] == 3)
+                {
+                    last_position_value = map_matrix[x - 1][y];
+
+                    map_matrix[x][y] = 0;
+                    map_matrix[x - 1][y] = 2;
+                    x += -1;
+                }
             }
-        }
-        else if (input == keyboard[1])
-        {
-            if (map_matrix[x + 1][y] == 0)
+            else if (input == keyboard[1])
             {
-                map_matrix[x][y] = 0;
-                map_matrix[x + 1][y] = 2;
-                x += +1;
+                if (map_matrix[x + 1][y] == 0 || map_matrix[x + 1][y] == 3)
+                {
+                    last_position_value = map_matrix[x + 1][y];
+
+                    map_matrix[x][y] = 0;
+                    map_matrix[x + 1][y] = 2;
+                    x += +1;
+                }
             }
-        }
-        else if (input == keyboard[2])
-        {
-            if (map_matrix[x][y - 1] == 0)
+            else if (input == keyboard[2])
             {
-                map_matrix[x][y] = 0;
-                map_matrix[x][y - 1] = 2;
-                y += -1;
+                if (map_matrix[x][y - 1] == 0 || map_matrix[x][y - 1] == 3)
+                {
+                    last_position_value = map_matrix[x][y - 1];
+
+                    map_matrix[x][y] = 0;
+                    map_matrix[x][y - 1] = 2;
+                    y += -1;
+                }
             }
-        }
-        else if (input == keyboard[3])
-        {
-            if (map_matrix[x][y + 1] == 0)
+            else if (input == keyboard[3])
             {
-                map_matrix[x][y] = 0;
-                map_matrix[x][y + 1] = 2;
-                y += +1;
+                if (map_matrix[x][y + 1] == 0 || map_matrix[x][y + 1] == 3)
+                {
+                    last_position_value = map_matrix[x][y + 1];
+
+                    map_matrix[x][y] = 0;
+                    map_matrix[x][y + 1] = 2;
+                    y += +1;
+                }
             }
-        }
-        else if (input == 112) // 112 == p
-        {
-            is_playing = false;
-            is_paused = true;
+            else if (input == 112) // 112 == p
+            {
+                is_playing = false;
+                is_paused = true;
+            }
         }
     }
 
@@ -90,6 +104,10 @@ public:
     int get_view()
     {
         return this->view;
+    }
+    int get_last_position_value()
+    {
+        return this->last_position_value;
     }
     // Setters
     void set_coord(int *coords)
@@ -119,6 +137,14 @@ public:
     void set_view(int view)
     {
         this->view = view;
+    }
+    void set_last_position_value(int position)
+    {
+        this->last_position_value = position;
+    }
+    void set_can_move(bool can_move)
+    {
+        this->can_move = can_move;
     }
 };
 

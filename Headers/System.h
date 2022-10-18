@@ -6,6 +6,7 @@ using namespace std;
 #include <ctime>
 #include <curses.h>
 #include <ncurses.h>
+#include <omp.h>
 #include <bits/stdc++.h>
 
 #include "Player.h"
@@ -61,10 +62,10 @@ public:
         printw("+-----------------------------------------------------+\n");
         printw("\n");
         printw("+-----------------------------------------------------+\n");
-        printw("| - Pressione 1 para Comecar um Novo Jogo             |\n");
-        printw("| - Pressione 2 para continuar o jogo salvo           |\n");
-        printw("| - Pressione 3 para Visualizar o Quadro de Pontuação |\n");
-        printw("| - Pressione 4 para Sair                             |\n");
+        printw("| - Press 1 to Start a New Game                       |\n");
+        printw("| - Press 2 to Continue Saved Game                    |\n");
+        printw("| - Press 3 to open the Scoreboard                    |\n");
+        printw("| - Press 4 to Quit                                   |\n");
         printw("+-----------------------------------------------------+\n");
         printw("\n");
         refresh();
@@ -93,17 +94,17 @@ public:
                         main_menu();
                         break;
                     default:
-                        printw("Por favor, adicione uma seleção válida\n");
+                        printw("Please, inform a valid selection\n");
                         break;
                     }
-                } while (input <= 0 || input >= 3);
+                } while (input <= 0 || input >= 2);
                 break;
             case 4:
                 is_playing = false;
-                printw("Saindo do jogo....");
+                printw("Exiting game....");
                 break;
             default:
-                printw("Por favor, adicione uma seleção válida\n");
+                printw("Please, inform a valid selection\n");
                 break;
             }
         } while (input <= 0 || input >= 5);
@@ -114,7 +115,7 @@ public:
         map.set_name(name);
         map.set_size(size_x, size_y);
         map.load_file();
-        map.define_players_coords(2);
+        map.define_players_initial_coords(2);
 
         player_1.set_coord(map.get_players_coords()[0]);
         player_2.set_coord(map.get_players_coords()[1]);
@@ -124,7 +125,7 @@ public:
         game(map, player_1, player_2);
     }
 
-    void game(Map map, Player player_1, Player player_2)
+    void game(Map map, Player &player_1, Player &player_2)
     {
         clock_t start;
         start = clock();
@@ -143,7 +144,15 @@ public:
             player_1.move(input, is_playing, is_paused, map);
             if (!is_playing) // Cláusula de Guarda
                 break;
+
             player_2.move(input, is_playing, is_paused, map);
+
+            // Validar e executa power ups para um player
+            if (player_2.get_last_position_value() == 3)
+            {
+                player_2.set_last_position_value(0); // Usado para evitar loop infinito
+                randomize_power(map, player_1, player_2);
+            }
         }
 
         if (is_paused)
@@ -168,15 +177,15 @@ public:
         clear();
         printw("+----------------------------------------------+\n");
         printw("|                                              |\n");
-        printw("|                 Jogo Pausado!                |\n");
+        printw("|                 Game Paused!                 |\n");
         printw("|                                              |\n");
         printw("+----------------------------------------------+\n");
         printw("\n");
         printw("+----------------------------------------------+\n");
-        printw("| - Pressione 1 para Iniciar um novo jogo      |\n");
-        printw("| - Pressione 2 para Continuar o jogo salvo    |\n");
-        printw("| - Pressione 3 para Salvar                    |\n");
-        printw("| - Pressione 4 para Sair                      |\n");
+        printw("| - Press 1 to Start a New Game                |\n");
+        printw("| - Press 2 to Continue Saved Game             |\n");
+        printw("| - Press 3 to Save                            |\n");
+        printw("| - Press 4 to Quit                            |\n");
         printw("+----------------------------------------------+\n");
         printw("\n");
         refresh();
@@ -195,23 +204,24 @@ public:
                 break;
             case 3:
                 map.save_file();
-                printw("Jogo Salvo!\n");
+                printw("Game Saved!\n");
                 pause_game();
                 break;
             case 4:
                 is_playing = false;
-                printw("Saindo do jogo....");
+                printw("Exiting game....");
                 break;
             default:
-                printw("Por favor, adicione uma seleção válida\n");
+                printw("Please, inform a valid selection\n");
                 break;
             }
         } while (input <= 0 || input >= 6);
     }
 
-    void win_game(long double time, int view, Player player_1, Player player_2)
+    void win_game(long double time, int view, Player &player_1, Player &player_2)
     {
         // O método abs() retornar o valor positivo do número informado
+        // FIXME: Fix this fucking math
         if (abs(player_1.get_x() - player_2.get_x()) < view && abs(player_1.get_y() - player_2.get_y()) < view) // Condição de Vitória
         {
             nodelay(stdscr, FALSE); // Disable the getch to be non-blocking
@@ -221,14 +231,14 @@ public:
             clear();
             printw("+-----------------------------------------------------+\n");
             printw("|\n");
-            printw("|  O tempo total foi: %Lf\n", time);
+            printw("|  The Total time was: %Lf\n", time);
             printw("|\n");
             printw("+-----------------------------------------------------+\n");
             printw("\n");
             printw("+-----------------------------------------------------+\n");
-            printw("| - Pressione 1 para iniciar um novo jogo             |\n");
-            printw("| - Pressione 2 para Visualizar o Quadro de Pontuação |\n");
-            printw("| - Pressione 3 para sair                             |\n");
+            printw("| - Press 1 to Start a New Game                       |\n");
+            printw("| - Press 2 to open the Scoreboard                    |\n");
+            printw("| - Press 3 to Quit                                   |\n");
             printw("+-----------------------------------------------------+\n");
             printw("\n");
             refresh();
@@ -244,12 +254,26 @@ public:
                     break;
                 case 2:
                     scoreboard.show_scoreboard();
+                    int input;
+                    do
+                    {
+                        input = getch() - 48;
+                        switch (input)
+                        {
+                        case 1:
+                            win_game(time, 3, player_1, player_2);
+                            break;
+                        default:
+                            printw("Please, inform a valid selection\n");
+                            break;
+                        }
+                    } while (input <= 0 || input >= 2);
                     break;
                 case 3:
-                    printw("Saindo do jogo....\nAperte um botão novamente para continuar");
+                    printw("Exiting game....\nPress any button to continue");
                     break;
                 default:
-                    printw("Por favor, adicione uma seleção válida\n");
+                    printw("Please, inform a valid selection\n");
                     break;
                 }
             } while (input <= 0 || input >= 5);
@@ -323,6 +347,9 @@ public:
                     case 2:
                         mvaddch(win_y, temp_win_x, char(1));
                         break;
+                    case 3:
+                        mvaddch(win_y, temp_win_x, char(63));
+                        break;
                     }
                 }
                 temp_win_x++; // Usado para tornar a visualização do player fixa na lateral da tela
@@ -331,6 +358,61 @@ public:
             win_y++; // Usado para tornar a visualização do player fixa na lateral da tela
         }
         printw("\n");
+    }
+
+    void randomize_power(Map &map, Player &player_1, Player &player_2)
+    {
+        int lucky_number = rand() % 12;
+
+        if (lucky_number >= 0 && lucky_number <= 3)
+        {
+            std::thread th(&System::stop_movement, this, std::ref(player_1));
+            th.detach();
+        }
+        else if (lucky_number >= 4 && lucky_number <= 7)
+        {
+            std::thread th(&System::reduce_view, this, std::ref(player_1), 2);
+            th.detach();
+        }
+        else if (lucky_number >= 8 && lucky_number <= 11)
+        {
+            std::thread th(&System::portal, this, std::ref(map), std::ref(player_2));
+            th.detach();
+        }
+    }
+
+    void portal(Map &map, Player &player)
+    {
+        int random_x, random_y;
+        int **map_matrix = map.get_matrix();
+
+        do
+        {
+            random_x = rand() % map.get_x();
+            random_y = rand() % map.get_y();
+        } while (map_matrix[random_x][random_y] != 0);
+
+        map_matrix[player.get_x()][player.get_y()] = 0;
+        map_matrix[random_x][random_y] = 2;
+        int new_coords[2] = {random_x, random_y};
+        player.set_coord(new_coords);
+        std::this_thread::sleep_for(chrono::seconds(5));
+    }
+
+    void reduce_view(Player &player, int new_view)
+    {
+        static int current_view = player.get_view();
+
+        player.set_view(new_view);
+        std::this_thread::sleep_for(chrono::seconds(5));
+        player.set_view(current_view);
+    }
+
+    void stop_movement(Player &player)
+    {
+        player.set_can_move(false);
+        std::this_thread::sleep_for(chrono::seconds(5));
+        player.set_can_move(true);
     }
 };
 
