@@ -147,7 +147,7 @@ public:
 
             player_2.move(input, is_playing, is_paused, map);
 
-            // Validar e executa power ups para um player
+            // Valida e executa power ups para um player
             if (player_2.get_last_position_value() == 3)
             {
                 player_2.set_last_position_value(0); // Usado para evitar loop infinito
@@ -221,7 +221,6 @@ public:
     void win_game(long double time, int view, Player &player_1, Player &player_2)
     {
         // O método abs() retornar o valor positivo do número informado
-        // FIXME: Fix this fucking math
         if (abs(player_1.get_x() - player_2.get_x()) < view && abs(player_1.get_y() - player_2.get_y()) < view) // Condição de Vitória
         {
             nodelay(stdscr, FALSE); // Disable the getch to be non-blocking
@@ -261,7 +260,8 @@ public:
                         switch (input)
                         {
                         case 1:
-                            win_game(time, 3, player_1, player_2);
+                            // win_game(time, 3, player_1, player_2);
+                            main_menu();
                             break;
                         default:
                             printw("Please, inform a valid selection\n");

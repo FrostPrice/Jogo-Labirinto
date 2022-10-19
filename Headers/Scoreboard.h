@@ -62,7 +62,7 @@ public:
         printw("+-------------------------------------+\n");
         printw("\n");
         printw("+-------------------------------------+\n");
-        printw("| - Press 1 to go back                |\n");
+        printw("| - Press 1 to go back to main menu   |\n");
         printw("+-------------------------------------+\n");
         printw("\n");
 
