@@ -166,7 +166,7 @@ public:
     {
         clock_t sum = 33.33;
         current_time = (clock() - start + sum) / (double)CLOCKS_PER_SEC;
-        move(10, 30);
+        move(10, 10);
         printw("Clock: %Lf", current_time);
     }
 
@@ -270,7 +270,8 @@ public:
                     } while (input <= 0 || input >= 2);
                     break;
                 case 3:
-                    printw("Exiting game....\nPress any button to continue");
+                    printw("Exiting game....\n");
+                    nodelay(stdscr, TRUE); // Usado para sair do jogo sem precisar apertar o teclado 2 vezes
                     break;
                 default:
                     printw("Please, inform a valid selection\n");
@@ -396,7 +397,7 @@ public:
         map_matrix[random_x][random_y] = 2;
         int new_coords[2] = {random_x, random_y};
         player.set_coord(new_coords);
-        std::this_thread::sleep_for(chrono::seconds(5));
+        std::this_thread::sleep_for(chrono::seconds(5)); // Para esse thread por n segundos
     }
 
     void reduce_view(Player &player, int new_view)
@@ -404,14 +405,14 @@ public:
         static int current_view = player.get_view();
 
         player.set_view(new_view);
-        std::this_thread::sleep_for(chrono::seconds(5));
+        std::this_thread::sleep_for(chrono::seconds(5)); // Para esse thread por n segundos
         player.set_view(current_view);
     }
 
     void stop_movement(Player &player)
     {
         player.set_can_move(false);
-        std::this_thread::sleep_for(chrono::seconds(5));
+        std::this_thread::sleep_for(chrono::seconds(5)); // Para esse thread por n segundos
         player.set_can_move(true);
     }
 };
