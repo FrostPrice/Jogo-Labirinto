@@ -276,7 +276,7 @@ public:
                     printw("Please, inform a valid selection\n");
                     break;
                 }
-            } while (input <= 0 || input >= 5);
+            } while (input <= 0 || input >= 4);
         }
     };
 
