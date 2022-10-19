@@ -260,7 +260,6 @@ public:
                         switch (input)
                         {
                         case 1:
-                            // win_game(time, 3, player_1, player_2);
                             main_menu();
                             break;
                         default:
