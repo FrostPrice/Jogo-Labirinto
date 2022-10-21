@@ -38,6 +38,7 @@ public:
                 matrix[i][j] = map_char - 48; // Os valores para char começam em 48
             }
         }
+        map.close();
     }
 
     void save_file()
@@ -55,6 +56,7 @@ public:
             }
             map << endl;
         }
+        map.close();
     }
 
     void define_players_initial_coords(int num_players)
